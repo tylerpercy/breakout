@@ -30,21 +30,23 @@ def game():
 
     # brick class
     class brick():
-        def __init__(self, x, y):
-            # Initialize the block 
+        # Initialize the block
+        def __init__(self, x, y): 
             self.b = box(pos=vec(-x,y,0),
                 color=cList[random.randint(0,3)],
                 size=vec(1.75,thick,thick))
+
+        # Check if ball has collided with the block
         def collide(self, p):
-                # Check if ball has collided with the block
                 if (p.pos.x >= self.b.pos.x - 1) and (p.pos.x <= self.b.pos.x + 1) and (p.pos.y <= self.b.pos.y + .4 and p.pos.y >= self.b.pos.y - .4):
                     self.b.pos = vec(-999, -999, 0)
                     self.b.visible = False
                     return True
-        def destroyed(self):
-            return True if self.b.pos == (-999, -999, 0) else False
 
+        # boolean flag for whether the brick has been hit by the sphere
+        destroyed = False
 
+    # creating the initial scene
     scene = canvas(title='Breakout Game', width=800, height=600)
 
     # creating the outer walls
@@ -54,13 +56,11 @@ def game():
     Twall = box(pos = vec(0, L/2, 0), size = vec(L, thick, thick), color=color.white)  #top wall
 
     # array to hold bricks
-    bricks = []
-
     bricks = [brick(x,y) for y in range(9,13) for x in range(-12, 14, 2)]
 
     # creating ball
     ball = sphere(pos = vec(0,-10,0), radius = .5, color = color.white)
-    ball.v = s*hat(vec(2*random.random()-1, 2*4-1, 0))
+    ball.v = s*hat(vec(2*random.random()-7, 31, 0))
 
     # platform
     pad = box(pos=vector(0,-11,0), color=color.white, size=vec(4,.5,.01))
@@ -76,9 +76,9 @@ def game():
 
     # main loop
     while(running):
-        rate(500)
+        rate(1000)
 
-        if all([brick.destroyed() for brick in bricks]): # if all bricks are broken
+        if all([brick.destroyed for brick in bricks]): # if all bricks are broken
             won = True
             break
 
@@ -105,11 +105,12 @@ def game():
         # reflect from and destroy block
         for brick in bricks:
             if brick.collide(ball) == 1:
-                ball.v.y = -ball.v.y
+                ball.v.y = -ball.v.y #reflect in y-direction
+                brick.destroyed = True
 
         # reflect from platform
         if (ball.pos.x >= pad.pos.x - 3 and ball.pos.x <= pad.pos.x + 3) and (ball.pos.y <= pad.pos.y + .2 and ball.pos.y >= pad.pos.y - .2):
-                ball.v.y = -ball.v.y
+                ball.v.y = -ball.v.y #reflect in y-direction -- should be up
 
         t = t + dt
 
